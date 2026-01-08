@@ -1,0 +1,106 @@
+import { useState, useEffect } from "react";
+import Homepage from "./pages/home";
+import Header from "./components/Header";
+import AboutPage from "./pages/about";
+import NotFoundPage from "./pages/notFoundPage";
+import CoinDetailsPage from "./pages/CoinDetailsPage";
+import Spinner from "./components/Spinner.jsx";
+import { Routes, Route } from "react-router";
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+const App = () => {
+
+        const [coins, setCoins] = useState([]);
+        const [loading, setLoading] = useState(true);
+        const [error, setError] = useState(null);
+        const [limit, setLimit] = useState(10);
+        const [filter, setFilter] = useState("");
+        const [sortedBy, setSortedBy] = useState("market_cap_desc");
+      
+      
+        useEffect(() => {
+          const fetchCoins = async () => {
+            try {
+              const response = await fetch(`${API_URL}&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false`);
+              if (!response.ok) {
+                throw new Error("Failed to fetch data");
+              }
+              const data = await response.json();
+             // console.log(data);        
+              setCoins(data);
+            } catch (error) {
+              setError(error.message);
+            } finally {
+              setLoading(false);
+            }
+          }
+          fetchCoins();
+        }, [setCoins, limit]);
+      
+        if (loading) {
+          return <Spinner />;
+        }
+      
+        if (error) {
+          return <div>Error: {error}</div>;
+        }
+
+        const filteredCoins = coins.filter((coin) => {
+          return ( 
+            coin.name.toLowerCase().includes(filter.toLowerCase()) ||
+          coin.symbol.toLowerCase().includes(filter.toLowerCase())
+          )
+        }
+        )
+        .slice()
+        .sort((a, b) => {
+          switch (sortedBy) {
+            case "market_cap_desc":
+              return b.market_cap - a.market_cap;
+            case "market_cap_asc":
+              return a.market_cap - b.market_cap;
+            case "price_desc":
+              return b.current_price - a.current_price;
+            case "price_asc":
+              return a.current_price - b.current_price;
+            case "change_desc":
+              return b.price_change_percentage_24h - a.price_change_percentage_24h;
+            case "change_asc":
+              return a.price_change_percentage_24h - b.price_change_percentage_24h;
+            case "name":
+              return a.name.localeCompare(b.name);
+            default:
+              return 0;
+          }
+        });
+
+  return (
+
+    <>
+    <Header />
+    <Routes>
+      <Route path="/" element={
+        <Homepage
+          coins={coins}
+          filter={filter}
+          setFilter={setFilter}
+          limit={limit}
+          setLimit={setLimit}
+          sortedBy={sortedBy}
+          setSortedBy={setSortedBy}
+          loading={loading}
+          error={error}
+        />
+      } />
+      <Route path="/about" element={
+        <AboutPage />} />
+        <Route path="/coin/:id" element={<CoinDetailsPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+    </>
+    
+  );
+}
+ 
+export default App;
