@@ -63,9 +63,13 @@ useEffect(() => {
 
        setLoading(false);
     };
+
     fetchPrices();
 }, [coinId]);
 
+if (loading) {
+    return <div>Loading chart...</div>;
+}
 
 
 return (
@@ -93,10 +97,10 @@ return (
 
             y: {
                 ticks: {
-                    callback: (value) => `$${value.toLocaleString()}`,
+                    callback: (value) => `$${value.toLocaleString()}`
                 }
             }
-
+  
         }
     }} />
        
