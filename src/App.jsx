@@ -3,7 +3,7 @@ import Homepage from "./pages/home";
 import Header from "./components/Header";
 import AboutPage from "./pages/about";
 import NotFoundPage from "./pages/notFoundPage";
-import CoinDetailsPage from "./pages/CoinDetailsPage";
+import CoinDetailsPage from "./pages/coinDetailsPage";
 import Spinner from "./components/Spinner.jsx";
 import { Routes, Route } from "react-router";
 
